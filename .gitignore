@@ -1,0 +1,23 @@
+# local testing env
+oidc-project-dir/config
+oidc-project-dir/logs
+oidc-project-dir/plugins
+oidc-project-dir/tmp_dags
+**venv**
+airflow.sh
+uc_default.json
+.env
+edge-config.env
+helper_functions.py
+task-executor.docker
+test-task-execution.sh
+
+# python
+env
+__pycache__
+dist
+build
+*.egg-info
+
+# VSCODE
+settings.json

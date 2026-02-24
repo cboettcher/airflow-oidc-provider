@@ -1,0 +1,61 @@
+[build-system]
+requires = [
+  "setuptools>=61.0",
+  "wheel"
+  ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airflow-oidc-provider"
+version = "0.0.1"
+authors = [
+  { name="Christian Böttcher", email="c.boettcher@fz-juelich.de" },
+]
+description = "Allowing OIDC Login to airflow."
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Apache Airflow :: Provider",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+
+
+dependencies = [
+    "apache-airflow>=3.1.0"
+]
+
+[project.urls]
+#Homepage = "https://github.com/UNICORE-EU/airflow-unicore-integration"
+#Issues = "https://github.com/UNICORE-EU/airflow-unicore-integration/issues"
+
+[project.entry-points."apache_airflow_provider"]
+provider_info = "airflow_oidc_provider:get_provider_info"
+
+#[project.entry-points.'airflow.policy']
+#_ = 'airflow_oauth2_provider.policies'
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
+
+[tool.black]
+line-length = 100
+
+[tool.flake8]
+max-line-length = 100
+ignore = [
+ "N999",
+ "E501",
+ "W503"
+]
+per-file-ignores = [
+    "__init__.py:F401,E501",
+]
+
+[tool.mypy]
+ignore_missing_imports=true
