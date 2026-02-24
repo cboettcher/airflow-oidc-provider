@@ -21,12 +21,14 @@ class OIDCAuthManagerUser(BaseUser):
         access_token: str,
         refresh_token: str | None,
         teams: dict[str, int] = {},
+        is_admin: bool = False,
     ) -> None:
         self.user_id = user_id
         self.name = name
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.teams: dict[str, OIDCUserRole] = {}
+        self.admin = is_admin
         for team in teams:
             self.teams[team] = OIDCUserRole(value=teams[team])
 
@@ -49,6 +51,8 @@ class OIDCAuthManagerUser(BaseUser):
         return self.teams
 
     def _is_at_least(self, role: OIDCUserRole, team: str | None = None) -> bool:
+        if self.admin:
+            return True
         if team is not None:
             return self.teams.get(team, OIDCUserRole.ANONYMOUS).value >= role.value
         # if no team is given, we check if the user has the required role for at least one team
@@ -67,4 +71,4 @@ class OIDCAuthManagerUser(BaseUser):
         return self._is_at_least(OIDCUserRole.OPERATOR, team)
 
     def is_admin(self, team: str | None = None) -> bool:
-        return self._is_at_least(OIDCUserRole.ADMIN, team)
+        return self.admin or self._is_at_least(OIDCUserRole.ADMIN, team)
