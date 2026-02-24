@@ -70,5 +70,6 @@ class SimpleOIDCTokenParser(BaseOIDCTokenParser):
             access_token=oidc_token["access_token"],
             refresh_token=oidc_token["refresh_token"],
             teams=self._get_teams(userinfo[self.token_key]),
+            is_admin=(self.admin_group in userinfo[self.token_key]),
         )
         return user
