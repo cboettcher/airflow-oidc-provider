@@ -1,18 +1,10 @@
 import logging
 from typing import Any
 from typing import Literal
-from typing import Sequence
 from urllib.parse import urljoin
 
 from airflow.api_fastapi.app import AUTH_MANAGER_FASTAPI_APP_PREFIX
 from airflow.api_fastapi.auth.managers.base_auth_manager import BaseAuthManager
-from airflow.api_fastapi.auth.managers.models.batch_apis import (
-    IsAuthorizedConnectionRequest,
-)
-from airflow.api_fastapi.auth.managers.models.batch_apis import IsAuthorizedPoolRequest
-from airflow.api_fastapi.auth.managers.models.batch_apis import (
-    IsAuthorizedVariableRequest,
-)
 from airflow.api_fastapi.auth.managers.models.resource_details import AccessView
 from airflow.api_fastapi.auth.managers.models.resource_details import AssetAliasDetails
 from airflow.api_fastapi.auth.managers.models.resource_details import AssetDetails
@@ -78,6 +70,8 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
         user: OIDCAuthManagerUser,
         details: ConnectionDetails | None = None,
     ) -> bool:
+        if method == "GET":
+            return user.is_user(details.team_name if details else None)
         return user.is_operator(details.team_name if details else None)
 
     def is_authorized_dag(
@@ -154,31 +148,12 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
     ) -> list[MenuItem]:
         return list(menu_items or [])
 
-    def batch_is_authorized_connection(
-        self, requests: Sequence[IsAuthorizedConnectionRequest], *, user: OIDCAuthManagerUser
-    ) -> bool:
-        return user.is_operator()
-
-    # don't override this function, as it will not be much faster to iterate over all dags here anyway
-    #    def batch_is_authorized_dag(self, requests: Sequence[IsAuthorizedDagRequest], *, user: OIDCAuthManagerUser) -> bool:
-    #        return super().batch_is_authorized_dag(requests, user=user)
-
-    def batch_is_authorized_pool(
-        self, requests: Sequence[IsAuthorizedPoolRequest], *, user: OIDCAuthManagerUser
-    ) -> bool:
-        return user.is_operator()
-
-    def batch_is_authorized_variable(
-        self, requests: Sequence[IsAuthorizedVariableRequest], *, user: OIDCAuthManagerUser
-    ) -> bool:
-        return user.is_operator()
-
-    def is_authorized_hitl_task(
-        self, *, assigned_users: set[str], user: OIDCAuthManagerUser
-    ) -> bool:
-        return (
-            user.get_id() in assigned_users or user.get_name in assigned_users
-        )  # TODO doesn't seem like a good idea, since per-user access isnt used anywhere else. possible make it USER or OPERATOR level instead
+    # def is_authorized_hitl_task(
+    #    self, *, assigned_users: set[str], user: OIDCAuthManagerUser
+    # ) -> bool:
+    #    return (
+    #        user.get_id() in assigned_users or user.get_name() in assigned_users or user.is_admin()
+    #    )  # TODO doesn't seem like a good idea, since per-user access isnt used anywhere else. possible make it USER or OPERATOR level instead
 
     def is_authorized_team(
         self,
@@ -226,6 +201,7 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
             access_token=token.pop("access_token"),
             refresh_token=token.pop("refresh_token"),
             teams=token.pop("teams"),
+            is_admin=token.pop("admin"),
         )
 
     def serialize_user(self, user: OIDCAuthManagerUser) -> dict[str, Any]:
@@ -235,6 +211,7 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
             "access_token": user.access_token,
             "refresh_token": user.refresh_token,
             "teams": user.teams,
+            "admin": user.admin,
         }
 
     def get_url_login(self, **kwargs) -> str:
