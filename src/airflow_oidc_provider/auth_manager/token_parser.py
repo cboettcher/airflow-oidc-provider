@@ -55,11 +55,14 @@ class SimpleOIDCTokenParser(BaseOIDCTokenParser):
         self.teams_config: dict[str, dict[str, str]] = config_dict["teams"]
 
     def _get_teams(self, groups_list: list[str]) -> dict[str, int]:
-        teams = {}
+        teams: dict[str, int] = {}
         for group in groups_list:
             for team in self.teams_config:
-                team_role: str = self.teams_config[team].get(group, OIDCUserRole.ANONYMOUS.name)
-                teams[team] = OIDCUserRole[team_role.upper()].value
+                team_role: int = OIDCUserRole[
+                    self.teams_config[team].get(group, OIDCUserRole.ANONYMOUS.name).upper()
+                ].value  # some shenanigans to get UserRoleValue from role name string
+                if not teams.get(team, None) or teams[team] < team_role:
+                    teams[team] = team_role
         return teams
 
     def parse(self, oidc_token: dict) -> OIDCAuthManagerUser:
