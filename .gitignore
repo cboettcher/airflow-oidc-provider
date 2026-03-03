@@ -17,6 +17,7 @@ env
 __pycache__
 dist
 build
+.coverage
 *.egg-info
 
 # VSCODE
