@@ -4,7 +4,13 @@ from airflow.api_fastapi.auth.managers.models.resource_details import Connection
 from airflow.api_fastapi.auth.managers.models.resource_details import PoolDetails
 from airflow.api_fastapi.auth.managers.models.resource_details import TeamDetails
 from airflow.api_fastapi.auth.managers.models.resource_details import VariableDetails
-from tests_common.test_utils.config import conf_vars
+
+try:
+    from tests_common.test_utils.config import conf_vars
+
+    CONF_VARS_PRESENT = True
+except:  # noqa E901,E722
+    CONF_VARS_PRESENT = False
 
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_ID_KEY
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_SECRET_KEY
@@ -83,11 +89,13 @@ def admin_user():
     )
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_routes(auth_manager):
     assert auth_manager.get_url_login() == "/auth/login"
     assert auth_manager.get_url_logout() == "/auth/logout"
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_serialization(auth_manager, tmp_user):
     serialized = auth_manager.serialize_user(tmp_user)
     assert serialized["user_id"] == "test_user"
@@ -100,6 +108,7 @@ def test_serialization(auth_manager, tmp_user):
     assert not serialized["admin"]
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_deserialization(auth_manager):
     serialized = {
         "user_id": "uid",
@@ -119,11 +128,13 @@ def test_deserialization(auth_manager):
     assert user.get_teams()["O"] == OIDCUserRole.OPERATOR.value
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_client(auth_manager):
     client = auth_manager.get_oidc_client()
     assert client
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_default_auth(auth_manager, tmp_user, admin_user):
     assert auth_manager._is_authorized_default("GET", tmp_user, "user-team")
     assert auth_manager._is_authorized_default("GET", tmp_user, "operator-team")
@@ -147,6 +158,7 @@ def test_default_auth(auth_manager, tmp_user, admin_user):
     assert auth_manager._is_authorized_default("DELETE", admin_user, "operator-team")
 
 
+@pytest.mark.skipif(not CONF_VARS_PRESENT)
 def test_auth_functions(auth_manager, tmp_user, admin_user):
     assert auth_manager.is_authorized_team(
         method="GET", user=tmp_user, details=TeamDetails(name="operator-team")

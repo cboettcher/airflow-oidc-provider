@@ -1,5 +1,11 @@
 import pytest
-from tests_common.test_utils.config import conf_vars
+
+try:
+    from tests_common.test_utils.config import conf_vars
+
+    CONF_VARS_PRESENT = True
+except:  # noqa E901,E722
+    CONF_VARS_PRESENT = False
 
 from airflow_oidc_provider.auth_manager.constants import CONF_SECTION_NAME
 from airflow_oidc_provider.auth_manager.constants import CONF_TOKEN_PARSER_CLASS
@@ -30,6 +36,9 @@ def simple_parser_config():
 
 @pytest.fixture
 def token_parser(simple_parser_config):
+    if not CONF_VARS_PRESENT:  # workaround
+        yield SimpleOIDCTokenParser(simple_parser_config)
+    # if possible, test the instance creation from airflow config
     with conf_vars(
         {
             (

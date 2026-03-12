@@ -66,3 +66,14 @@ The configuration string should be in json format.
 |teams       | This contains nested json objects. On the first Level will be a team name as key, its value will be           |
 |            |  a mapping from groups from the userinfo token to the name of the role to be given for this team in airflow.  |
 +------------+---------------------------------------------------------------------------------------------------------------+
+
+
+
+
+-------
+Testing
+-------
+
+The testcases included in this repository depend on some internal airflow development packages, which are not provided in a public registry, and had to be built from source.
+
+Therefore those testcases are not run if the required packages are not present.
