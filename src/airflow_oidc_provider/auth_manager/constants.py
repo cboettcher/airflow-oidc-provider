@@ -7,6 +7,9 @@ CONF_REQUESTS_POOL_SIZE_KEY = "requests_pool_size"
 CONF_REQUESTS_RETRIES_KEY = "requests_retries"
 
 CONF_TOKEN_PARSER_CONFIG = "token_parser_config"
+CONF_TOKEN_PARSER_CLASS_DEFAULT = (
+    "airflow_oidc_provider.auth_manager.token_parser.SimpleOIDCTokenParser"
+)
 
 CONF_TOKEN_PARSER_CLASS = "token_parser_class"
 

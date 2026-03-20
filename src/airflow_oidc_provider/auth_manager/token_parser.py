@@ -5,6 +5,7 @@ from airflow.providers.common.compat.sdk import conf
 
 from airflow_oidc_provider.auth_manager.constants import CONF_SECTION_NAME
 from airflow_oidc_provider.auth_manager.constants import CONF_TOKEN_PARSER_CLASS
+from airflow_oidc_provider.auth_manager.constants import CONF_TOKEN_PARSER_CLASS_DEFAULT
 from airflow_oidc_provider.auth_manager.constants import CONF_TOKEN_PARSER_CONFIG
 from airflow_oidc_provider.auth_manager.user import OIDCAuthManagerUser
 from airflow_oidc_provider.auth_manager.user import OIDCUserRole
@@ -23,7 +24,9 @@ class BaseOIDCTokenParser:
 
 
 def get_token_parser() -> BaseOIDCTokenParser:
-    classpath = conf.get(CONF_SECTION_NAME, CONF_TOKEN_PARSER_CLASS)
+    classpath = conf.get(
+        CONF_SECTION_NAME, CONF_TOKEN_PARSER_CLASS, CONF_TOKEN_PARSER_CLASS_DEFAULT
+    )
     module_name, class_name = classpath.rsplit(".", 1)
     configured_parser_class = getattr(importlib.import_module(module_name), class_name)
     return configured_parser_class(conf.get(CONF_SECTION_NAME, CONF_TOKEN_PARSER_CONFIG))
