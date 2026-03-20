@@ -24,7 +24,9 @@ COOKIE_NAME_ID_TOKEN = "_id_token"
 async def login(request: Request) -> RedirectResponse:
     redirect_uri = request.url_for("login_callback")
     oidc_client = get_auth_manager().get_oidc_client()  # type: ignore # can ignore, since this route only works with OIDC Auth manager anyway
-    return await oidc_client.authorize_redirect(request, redirect_uri)
+    return await oidc_client.authorize_redirect(
+        request, redirect_uri, claims_in_tokens="id_token token"
+    )  # TODO extra options need to be configured in the airflow settings and not hard coded!
 
 
 @login_router.get("/login_callback")
