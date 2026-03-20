@@ -30,6 +30,7 @@ from airflow_oidc_provider.auth_manager.constants import CONF_SCOPES
 from airflow_oidc_provider.auth_manager.constants import CONF_SCOPES_DEFAULT
 from airflow_oidc_provider.auth_manager.constants import CONF_SECTION_NAME
 from airflow_oidc_provider.auth_manager.constants import CONF_SERVER_URL_KEY
+from airflow_oidc_provider.auth_manager.token_parser import get_token_parser
 from airflow_oidc_provider.auth_manager.user import OIDCAuthManagerUser
 
 log = logging.getLogger(__name__)
@@ -237,3 +238,6 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
         app.add_middleware(SessionMiddleware, secret_key="some-random-string")
 
         return app
+
+    def _get_teams(self) -> set[str]:
+        return get_token_parser().get_teams_from_config()  # TODO do this in its own config

@@ -18,6 +18,9 @@ class BaseOIDCTokenParser:
     def parse(self, oidc_token: dict) -> OIDCAuthManagerUser:
         raise NotImplementedError
 
+    def get_teams_from_config(self) -> set[str]:
+        raise NotImplementedError
+
 
 def get_token_parser() -> BaseOIDCTokenParser:
     classpath = conf.get(CONF_SECTION_NAME, CONF_TOKEN_PARSER_CLASS)
@@ -53,6 +56,9 @@ class SimpleOIDCTokenParser(BaseOIDCTokenParser):
         self.token_key = config_dict["token_key"]
         self.admin_group = config_dict["admin_group"]
         self.teams_config: dict[str, dict[str, str]] = config_dict["teams"]
+
+    def get_teams_from_config(self) -> set[str]:
+        return set(self.teams_config.keys())
 
     def _get_teams(self, groups_list: list[str]) -> dict[str, int]:
         teams: dict[str, int] = {}
