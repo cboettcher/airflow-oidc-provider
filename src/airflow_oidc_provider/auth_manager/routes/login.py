@@ -33,9 +33,6 @@ async def login(request: Request) -> RedirectResponse:
 async def login_callback(request: Request):
     oidc_client = get_auth_manager().get_oidc_client()  # type: ignore
     oidc_token = await oidc_client.authorize_access_token(request)
-    log.debug(
-        f"The user token is {oidc_token}. \nIf you can see this line in a non-development environment, you need to update the provider version ASAP!!"
-    )
     user = get_token_parser().parse(oidc_token=oidc_token)
     log.info(f"Created Session for user {user.get_id()} with teams {user.get_teams()}")
     airflow_token = get_auth_manager().generate_jwt(user)
