@@ -62,7 +62,9 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
         user: OIDCAuthManagerUser,
         details: ConfigurationDetails | None = None,
     ) -> bool:
-        return user.is_admin()
+        if method == "GET":
+            return user.is_viewer()
+        return user.is_operator()
 
     def is_authorized_connection(
         self,
