@@ -18,15 +18,11 @@ class OIDCAuthManagerUser(BaseUser):
         self,
         user_id: str,
         name: str,
-        access_token: str,
-        refresh_token: str | None,
         teams: dict[str, int] = {},
         is_admin: bool = False,
     ) -> None:
         self.user_id = user_id
         self.name = name
-        self.access_token = access_token
-        self.refresh_token = refresh_token
         self.teams: dict[str, OIDCUserRole] = {}
         self.admin = is_admin
         for team in teams:

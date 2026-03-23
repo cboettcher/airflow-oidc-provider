@@ -190,9 +190,9 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
             return user.is_viewer(team_name)
         return user.is_user(team_name)
 
-    def refresh_user(self, *, user: OIDCAuthManagerUser) -> OIDCAuthManagerUser | None:
-        # TODO
-        return super().refresh_user(user=user)
+    # def refresh_user(self, *, user: OIDCAuthManagerUser) -> OIDCAuthManagerUser | None:
+    # TODO
+    # return super().refresh_user(*, user=user)
 
     def get_oidc_client(self):
         return self.oauth_registry.create_client(IDP_INTERNAL_NAME)
@@ -201,8 +201,6 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
         return OIDCAuthManagerUser(
             user_id=token.pop("user_id"),
             name=token.pop("name"),
-            access_token=token.pop("access_token"),
-            refresh_token=token.pop("refresh_token"),
             teams=token.pop("teams"),
             is_admin=token.pop("admin"),
         )
@@ -211,8 +209,6 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
         return {
             "user_id": user.get_id(),
             "name": user.get_name(),
-            "access_token": user.access_token,
-            "refresh_token": user.refresh_token,
             "teams": user.teams,
             "admin": user.admin,
         }
