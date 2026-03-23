@@ -26,32 +26,31 @@ def test_enum_from_name():
 
 
 def test_init():
-    user = OIDCAuthManagerUser(test_userid, test_username, test_token, None, test_teams)
+    user = OIDCAuthManagerUser(test_userid, test_username, test_teams)
     assert user
     assert user.user_id == test_userid
     assert user.name == test_username
-    assert user.access_token == test_token
     assert user.teams["A-Team"] == OIDCUserRole.OPERATOR.value
     assert user.admin is False
 
 
 def test_add_team():
-    user = OIDCAuthManagerUser(test_userid, test_username, test_token, None, test_teams)
+    user = OIDCAuthManagerUser(test_userid, test_username, test_teams)
     assert user.teams.get("C-Team") is None
     user.add_team("C-Team", OIDCUserRole.VIEWER)
     assert user.teams.get("C-Team") == OIDCUserRole.VIEWER
 
 
 def test_get_role():
-    testuser = OIDCAuthManagerUser(test_userid, test_username, test_token, None, test_teams)
+    testuser = OIDCAuthManagerUser(test_userid, test_username, test_teams)
     assert testuser.get_role("A-Team") == OIDCUserRole.OPERATOR.name
     assert testuser.get_role_value("A-Team") == OIDCUserRole.OPERATOR.value
 
 
 def test_is_at_least():
     tmp_teams = test_teams
-    testuser = OIDCAuthManagerUser(test_userid, test_username, test_token, None, tmp_teams)
-    testuser2 = OIDCAuthManagerUser(test_userid, test_username, test_token, None, more_teams)
+    testuser = OIDCAuthManagerUser(test_userid, test_username, tmp_teams)
+    testuser2 = OIDCAuthManagerUser(test_userid, test_username, more_teams)
     assert testuser.is_viewer("A-Team")
     assert testuser.is_user("A-Team")
     assert testuser.is_operator("A-Team")

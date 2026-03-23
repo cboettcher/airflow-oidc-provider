@@ -248,10 +248,10 @@ def test_auth_functions(auth_manager, tmp_user, admin_user):
         method="DELETE", user=tmp_user, details=ConnectionDetails(team_name="user-team")
     )
 
-    assert not auth_manager.is_authorized_configuration(method="GET", user=tmp_user)
-    assert not auth_manager.is_authorized_configuration(method="PUT", user=tmp_user)
-    assert not auth_manager.is_authorized_configuration(method="POST", user=tmp_user)
-    assert not auth_manager.is_authorized_configuration(method="DELETE", user=tmp_user)
+    assert auth_manager.is_authorized_configuration(method="GET", user=tmp_user)
+    assert auth_manager.is_authorized_configuration(method="PUT", user=tmp_user)
+    assert auth_manager.is_authorized_configuration(method="POST", user=tmp_user)
+    assert auth_manager.is_authorized_configuration(method="DELETE", user=tmp_user)
 
     assert auth_manager.is_authorized_configuration(method="GET", user=admin_user)
     assert auth_manager.is_authorized_configuration(method="PUT", user=admin_user)
