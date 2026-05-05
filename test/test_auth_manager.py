@@ -82,8 +82,6 @@ def tmp_user():
     return OIDCAuthManagerUser(
         user_id="test_user",
         name="Test User",
-        access_token="this_is_an_access_token",
-        refresh_token="this_is_a_refresh_token",
         teams={
             "operator-team": OIDCUserRole.OPERATOR.value,
             "user-team": OIDCUserRole.USER.value,
@@ -98,8 +96,6 @@ def admin_user():
     return OIDCAuthManagerUser(
         user_id="test_user",
         name="Test User",
-        access_token="this_is_an_access_token",
-        refresh_token="this_is_a_refresh_token",
         teams={},
         is_admin=True,
     )
@@ -120,8 +116,6 @@ def test_serialization(auth_manager, tmp_user):
     serialized = auth_manager.serialize_user(tmp_user)
     assert serialized["user_id"] == "test_user"
     assert serialized["name"] == "Test User"
-    assert serialized["access_token"] == "this_is_an_access_token"
-    assert serialized["refresh_token"] == "this_is_a_refresh_token"
     assert serialized["teams"]["operator-team"] == OIDCUserRole.OPERATOR
     assert serialized["teams"]["user-team"] == OIDCUserRole.USER
     assert serialized["teams"]["viewer-team"] == OIDCUserRole.VIEWER
@@ -135,16 +129,12 @@ def test_deserialization(auth_manager):
     serialized = {
         "user_id": "uid",
         "name": "name",
-        "access_token": "abc",
-        "refresh_token": "def",
         "teams": {"A": OIDCUserRole.ADMIN, "O": OIDCUserRole.OPERATOR},
         "admin": True,
     }
     user = auth_manager.deserialize_user(serialized)
     assert user.get_id() == "uid"
     assert user.get_name() == "name"
-    assert user.access_token == "abc"
-    assert user.refresh_token == "def"
     assert user.admin
     assert user.get_teams()["A"] == OIDCUserRole.ADMIN.value
     assert user.get_teams()["O"] == OIDCUserRole.OPERATOR.value

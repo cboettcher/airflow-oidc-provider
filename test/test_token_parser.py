@@ -102,10 +102,8 @@ def test_parse_user(token_parser, user_token):
     user = token_parser.parse(user_token)
     assert isinstance(user, OIDCAuthManagerUser)
     print(user.teams)
-    assert user.access_token == "place token here"
     assert user.admin is False
     assert user.name == "username"
-    assert user.refresh_token == "refresh_token"
     assert user.is_user("Team 1")
     assert user.is_viewer("Fantasy Organization")
     assert user.user_id == "subject name"
