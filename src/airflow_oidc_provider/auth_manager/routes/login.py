@@ -15,20 +15,16 @@ limitations under the License.
 """
 
 import logging
-from typing import Annotated
 
 from airflow.api_fastapi.app import get_auth_manager
 from airflow.api_fastapi.auth.managers.base_auth_manager import COOKIE_NAME_JWT_TOKEN
 from airflow.api_fastapi.common.router import AirflowRouter
-from airflow.api_fastapi.core_api.security import get_user
 from airflow.providers.common.compat.sdk import conf
 from authlib.common.urls import add_params_to_uri
-from fastapi import Depends
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 
 from airflow_oidc_provider.auth_manager.token_parser import get_token_parser
-from airflow_oidc_provider.auth_manager.user import OIDCAuthManagerUser
 
 log = logging.getLogger(__name__)
 
@@ -66,7 +62,7 @@ async def login_callback(request: Request):
 
 
 @login_router.get("/logout")
-async def logout(request: Request, user: Annotated[OIDCAuthManagerUser, Depends(get_user)]):
+async def logout(request: Request):
     redirect_url = conf.get("api", "base_url", fallback="/")
     auth_manager = get_auth_manager()
     id_token = request.cookies.get(COOKIE_NAME_ID_TOKEN)
