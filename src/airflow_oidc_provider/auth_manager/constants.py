@@ -30,3 +30,8 @@ CONF_TOKEN_PARSER_CLASS_DEFAULT = (
 CONF_TOKEN_PARSER_CLASS = "token_parser_class"
 
 CONF_SCOPES_DEFAULT = "openid email profile"
+
+CONF_PROVIDER_LOGOUT_ENABLED = "provider_logout_enabled"
+CONF_PROVIDER_LOGOUT_ENABLED_DEFAULT = False
+CONF_LOGOUT_URL = "logout_url"
+CONF_POST_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri"

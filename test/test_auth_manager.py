@@ -30,6 +30,9 @@ except:  # noqa E901,E722
 
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_ID_KEY
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_SECRET_KEY
+from airflow_oidc_provider.auth_manager.constants import CONF_LOGOUT_URL
+from airflow_oidc_provider.auth_manager.constants import CONF_POST_LOGOUT_REDIRECT_URI
+from airflow_oidc_provider.auth_manager.constants import CONF_PROVIDER_LOGOUT_ENABLED
 from airflow_oidc_provider.auth_manager.constants import CONF_SCOPES
 from airflow_oidc_provider.auth_manager.constants import CONF_SECTION_NAME
 from airflow_oidc_provider.auth_manager.constants import CONF_SERVER_URL_KEY
@@ -107,6 +110,41 @@ def admin_user():
 def test_routes(auth_manager):
     assert auth_manager.get_url_login() == "/auth/login"
     assert auth_manager.get_url_logout() == "/auth/logout"
+
+
+@pytest.mark.skipif(
+    not CONF_VARS_PRESENT, reason="Required internal airflow dev package not present."
+)
+def test_provider_logout_disabled_by_default(auth_manager):
+    assert not auth_manager.is_provider_logout_enabled()
+
+
+@pytest.mark.skipif(
+    not CONF_VARS_PRESENT, reason="Required internal airflow dev package not present."
+)
+def test_provider_logout_explicit_url(simple_parser_config):
+    logout_url = "https://idp.example.org/application/o/airflow/end-session/"
+    post_logout_redirect_uri = "https://airflow.example.org"
+    with conf_vars(
+        {
+            (
+                CONF_SECTION_NAME,
+                CONF_TOKEN_PARSER_CLASS,
+            ): "airflow_oidc_provider.auth_manager.token_parser.SimpleOIDCTokenParser",
+            (CONF_SECTION_NAME, CONF_TOKEN_PARSER_CONFIG): simple_parser_config,
+            (CONF_SECTION_NAME, CONF_CLIENT_ID_KEY): "client_id",
+            (CONF_SECTION_NAME, CONF_CLIENT_SECRET_KEY): "client_secret",
+            (CONF_SECTION_NAME, CONF_SERVER_URL_KEY): "https://localhost:1234/.well-known",
+            (CONF_SECTION_NAME, CONF_SCOPES): "openid email profile",
+            (CONF_SECTION_NAME, CONF_PROVIDER_LOGOUT_ENABLED): "True",
+            (CONF_SECTION_NAME, CONF_LOGOUT_URL): logout_url,
+            (CONF_SECTION_NAME, CONF_POST_LOGOUT_REDIRECT_URI): post_logout_redirect_uri,
+        }
+    ):
+        auth_manager = OIDCAuthManager()
+        assert auth_manager.is_provider_logout_enabled()
+        assert auth_manager.get_provider_logout_url() == logout_url
+        assert auth_manager.get_post_logout_redirect_uri() == post_logout_redirect_uri
 
 
 @pytest.mark.skipif(
