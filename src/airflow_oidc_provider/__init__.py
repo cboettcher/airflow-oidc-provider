@@ -72,6 +72,27 @@ def get_provider_info():
                         "example": "3",
                         "default": "3",
                     },
+                    "provider_logout_enabled": {
+                        "description": "Whether logout should redirect to the OIDC provider logout endpoint after deleting Airflow cookies.\n",
+                        "type": "boolean",
+                        "version_added": None,
+                        "example": "True",
+                        "default": "False",
+                    },
+                    "logout_url": {
+                        "description": "Optional explicit OIDC provider logout URL. If omitted, Authlib uses the OIDC discovery metadata.\n",
+                        "type": "string",
+                        "version_added": None,
+                        "example": "https://idp.example.org/application/o/airflow/end-session/",
+                        "default": None,
+                    },
+                    "post_logout_redirect_uri": {
+                        "description": "URI passed to the provider as post_logout_redirect_uri. Defaults to [api] base_url.\n",
+                        "type": "string",
+                        "version_added": None,
+                        "example": "https://airflow.example.org",
+                        "default": None,
+                    },
                     "token_parser_class": {
                         "description": "The full classpath to be used as a parser of the token.\n",
                         "type": "string",

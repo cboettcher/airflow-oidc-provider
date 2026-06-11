@@ -42,6 +42,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_ID_KEY
 from airflow_oidc_provider.auth_manager.constants import CONF_CLIENT_SECRET_KEY
+from airflow_oidc_provider.auth_manager.constants import CONF_LOGOUT_URL
+from airflow_oidc_provider.auth_manager.constants import CONF_POST_LOGOUT_REDIRECT_URI
+from airflow_oidc_provider.auth_manager.constants import CONF_PROVIDER_LOGOUT_ENABLED
+from airflow_oidc_provider.auth_manager.constants import CONF_PROVIDER_LOGOUT_ENABLED_DEFAULT
 from airflow_oidc_provider.auth_manager.constants import CONF_SCOPES
 from airflow_oidc_provider.auth_manager.constants import CONF_SCOPES_DEFAULT
 from airflow_oidc_provider.auth_manager.constants import CONF_SECTION_NAME
@@ -212,6 +216,23 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
 
     def get_oidc_client(self):
         return self.oauth_registry.create_client(IDP_INTERNAL_NAME)
+
+    def is_provider_logout_enabled(self) -> bool:
+        return conf.getboolean(
+            CONF_SECTION_NAME,
+            CONF_PROVIDER_LOGOUT_ENABLED,
+            fallback=CONF_PROVIDER_LOGOUT_ENABLED_DEFAULT,
+        )
+
+    def get_provider_logout_url(self) -> str | None:
+        return conf.get(CONF_SECTION_NAME, CONF_LOGOUT_URL, fallback=None)
+
+    def get_post_logout_redirect_uri(self) -> str:
+        return conf.get(
+            CONF_SECTION_NAME,
+            CONF_POST_LOGOUT_REDIRECT_URI,
+            fallback=conf.get("api", "base_url", fallback="/"),
+        )
 
     def deserialize_user(self, token: dict[str, Any]) -> OIDCAuthManagerUser:
         return OIDCAuthManagerUser(

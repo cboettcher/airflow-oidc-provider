@@ -15,19 +15,16 @@ limitations under the License.
 """
 
 import logging
-from typing import Annotated
 
 from airflow.api_fastapi.app import get_auth_manager
 from airflow.api_fastapi.auth.managers.base_auth_manager import COOKIE_NAME_JWT_TOKEN
 from airflow.api_fastapi.common.router import AirflowRouter
-from airflow.api_fastapi.core_api.security import get_user
 from airflow.providers.common.compat.sdk import conf
-from fastapi import Depends
+from authlib.common.urls import add_params_to_uri
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 
 from airflow_oidc_provider.auth_manager.token_parser import get_token_parser
-from airflow_oidc_provider.auth_manager.user import OIDCAuthManagerUser
 
 log = logging.getLogger(__name__)
 
@@ -65,11 +62,35 @@ async def login_callback(request: Request):
 
 
 @login_router.get("/logout")
-def logout(request: Request, user: Annotated[OIDCAuthManagerUser, Depends(get_user)]):
-    response = RedirectResponse(url=conf.get("api", "base_url", fallback="/"))
-    secure = bool(conf.get("api", "ssl_cert", fallback=""))
+async def logout(request: Request):
+    redirect_url = conf.get("api", "base_url", fallback="/")
+    auth_manager = get_auth_manager()
+    id_token = request.cookies.get(COOKIE_NAME_ID_TOKEN)
+    response = None
 
-    # TODO invalidate [access|refresh]token from oidc server
+    if auth_manager.is_provider_logout_enabled():  # type: ignore[attr-defined]
+        logout_url = auth_manager.get_provider_logout_url()  # type: ignore[attr-defined]
+        if logout_url:
+            params = {
+                "post_logout_redirect_uri": auth_manager.get_post_logout_redirect_uri()  # type: ignore[attr-defined]
+            }
+            if id_token:
+                params["id_token_hint"] = id_token
+            redirect_url = add_params_to_uri(logout_url, params)
+        else:
+            logout_kwargs = {
+                "post_logout_redirect_uri": auth_manager.get_post_logout_redirect_uri()  # type: ignore[attr-defined]
+            }
+            if id_token:
+                logout_kwargs["id_token_hint"] = id_token
+            response = await auth_manager.get_oidc_client().logout_redirect(  # type: ignore[attr-defined]
+                request,
+                **logout_kwargs,
+            )
+
+    if response is None:
+        response = RedirectResponse(url=redirect_url)
+    secure = bool(conf.get("api", "ssl_cert", fallback=""))
 
     # end user session by deleting token cookies
     response.delete_cookie(COOKIE_NAME_JWT_TOKEN, secure=secure, httponly=True)
