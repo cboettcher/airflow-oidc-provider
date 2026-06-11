@@ -37,16 +37,19 @@ An example config via variables in a yaml file can look like this::
 Configuration Options
 ---------------------
 
-=================================================== ======================================================================= ===========================================================================================
-Option name                                         default                                                                 description
-=================================================== ======================================================================= ===========================================================================================
-AIRFLOW__OAUTH2_AUTH_MANAGER__CLIENT_ID             mandatory                                                               The client id to be used with the IdP.
-AIRFLOW__OAUTH2_AUTH_MANAGER__CLIENT_SECRET         mandatory                                                               The client secret to be used with the IdP.
-AIRFLOW__OAUTH2_AUTH_MANAGER__SERVER_URL            mandatory                                                               The URL for the OIDC endpoint of the IdP. Often ends in '.well-known/openid-configuration'.
-AIRFLOW__OAUTH2_AUTH_MANAGER__SCOPES                profile email openid roles                                              The scopes that need to be requested for the token to contain groups information.
-AIRFLOW__OAUTH2_AUTH_MANAGER__TOKEN_PARSER_CLASS    airflow_oidc_provider.auth_manager.token_parser.SimpleOIDCTokenParser   The class that parses the OIDC token for userinformation.
-AIRFLOW__OAUTH2_AUTH_MANAGER__TOKEN_PARSER_CONFIG   mandatory for default class, else depends on class                      A config string for the parser class. More details for the default class below.
-=================================================== ======================================================================= ===========================================================================================
+======================================================== ======================================================================= ====================================================================================================
+Option name                                              default                                                                 description
+======================================================== ======================================================================= ====================================================================================================
+AIRFLOW__OAUTH2_AUTH_MANAGER__CLIENT_ID                  mandatory                                                               The client id to be used with the IdP.
+AIRFLOW__OAUTH2_AUTH_MANAGER__CLIENT_SECRET              mandatory                                                               The client secret to be used with the IdP.
+AIRFLOW__OAUTH2_AUTH_MANAGER__SERVER_URL                 mandatory                                                               The URL for the OIDC endpoint of the IdP. Often ends in '.well-known/openid-configuration'.
+AIRFLOW__OAUTH2_AUTH_MANAGER__SCOPES                     profile email openid roles                                              The scopes that need to be requested for the token to contain groups information.
+AIRFLOW__OAUTH2_AUTH_MANAGER__TOKEN_PARSER_CLASS         airflow_oidc_provider.auth_manager.token_parser.SimpleOIDCTokenParser   The class that parses the OIDC token for userinformation.
+AIRFLOW__OAUTH2_AUTH_MANAGER__TOKEN_PARSER_CONFIG        mandatory for default class, else depends on class                      A config string for the parser class. More details for the default class below.
+AIRFLOW__OAUTH2_AUTH_MANAGER__LOGOUT_URL                 None                                                                    Optional explicit OIDC provider logout URL. If omitted, Authlib uses the OIDC discovery metadata.
+AIRFLOW__OAUTH2_AUTH_MANAGER__POST_LOGOUT_REDIRECT_URI   [api] base url                                                          URI passed to the provider as post_logout_redirect_uri.
+AIRFLOW__OAUTH2_AUTH_MANAGER__PROVIDER_LOGOUT_ENABLED    False                                                                   Whether logout should redirect to the OIDC provider logout endpoint after deleting Airflow cookies.
+======================================================== ======================================================================= ====================================================================================================
 
 ---------------------
 SimpleOIDCTokenParser
