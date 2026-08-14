@@ -270,7 +270,9 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
             ),
         )
         app.include_router(login_router)
-        app.add_middleware(SessionMiddleware, secret_key="some-random-string")
+        app.add_middleware(
+            SessionMiddleware, secret_key=conf.get("api", "secret_key")
+        )
 
         return app
 
