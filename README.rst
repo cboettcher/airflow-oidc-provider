@@ -51,6 +51,24 @@ AIRFLOW__OAUTH2_AUTH_MANAGER__POST_LOGOUT_REDIRECT_URI   [api] base url         
 AIRFLOW__OAUTH2_AUTH_MANAGER__PROVIDER_LOGOUT_ENABLED    False                                                                   Whether logout should redirect to the OIDC provider logout endpoint after deleting Airflow cookies.
 ======================================================== ======================================================================= ====================================================================================================
 
+-------------------------------
+TLS-terminating reverse proxies
+-------------------------------
+
+When TLS terminates at a reverse proxy, configure ``[api] base_url`` with the
+external HTTPS URL and start the API server with proxy-header handling enabled::
+
+  airflow api-server --proxy-headers
+
+The proxy must set ``X-Forwarded-Proto``. If it is not on the same host or in
+the same container as Airflow, set ``FORWARDED_ALLOW_IPS`` to the proxy's IP
+address or trusted network. Do not accept forwarded headers from untrusted
+clients. These settings let Airflow and this provider recognize the external
+HTTPS request and mark authentication cookies ``Secure``.
+
+See Airflow's `reverse proxy documentation
+<https://airflow.apache.org/docs/apache-airflow/stable/howto/run-behind-proxy.html>`_.
+
 ---------------------
 SimpleOIDCTokenParser
 ---------------------
