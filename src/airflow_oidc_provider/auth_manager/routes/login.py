@@ -33,6 +33,13 @@ login_router = AirflowRouter(tags=["OIDCAuthManagerLogin"])
 COOKIE_NAME_ID_TOKEN = "_id_token"
 
 
+def _is_cookie_secure(request: Request) -> bool:
+    # request.base_url reflects trusted proxy headers when --proxy-headers is enabled.
+    return request.base_url.scheme == "https" or bool(
+        conf.get("api", "ssl_cert", fallback="")
+    )
+
+
 @login_router.get("/login")
 async def login(request: Request) -> RedirectResponse:
     redirect_uri = request.url_for("login_callback")
@@ -50,7 +57,7 @@ async def login_callback(request: Request):
     log.info(f"Created Session for user {user.get_id()} with teams {user.get_teams()}")
     airflow_token = get_auth_manager().generate_jwt(user)
     response = RedirectResponse(url=conf.get("api", "base_url", fallback="/"), status_code=303)
-    secure = bool(conf.get("api", "ssl_cert", fallback=""))
+    secure = _is_cookie_secure(request)
     # In Airflow 3.1.1 authentication changes, front-end no longer handle the token
     # See https://github.com/apache/airflow/pull/55506
     response.set_cookie(COOKIE_NAME_JWT_TOKEN, airflow_token, secure=secure, httponly=True)
@@ -90,7 +97,7 @@ async def logout(request: Request):
 
     if response is None:
         response = RedirectResponse(url=redirect_url)
-    secure = bool(conf.get("api", "ssl_cert", fallback=""))
+    secure = _is_cookie_secure(request)
 
     # end user session by deleting token cookies
     response.delete_cookie(COOKIE_NAME_JWT_TOKEN, secure=secure, httponly=True)

@@ -21,7 +21,7 @@ def get_provider_info():
         "name": "Oauth2",
         "description": "Apache Airflow OIDC provider containing an authManager.",
         "auth-managers": [
-            "airflow_oauth2_provider.auth_manager.oauth2_auth_manager.OIDCAuthManager"
+            "airflow_oidc_provider.auth_manager.oauth2_auth_manager.OIDCAuthManager"
         ],
         "cli": [],
         "config": {

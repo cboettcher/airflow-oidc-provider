@@ -18,6 +18,7 @@ import logging
 from typing import Any
 from typing import Literal
 from urllib.parse import urljoin
+from urllib.parse import urlsplit
 
 from airflow.api_fastapi.app import AUTH_MANAGER_FASTAPI_APP_PREFIX
 from airflow.api_fastapi.auth.managers.base_auth_manager import BaseAuthManager
@@ -270,7 +271,15 @@ class OIDCAuthManager(BaseAuthManager[OIDCAuthManagerUser]):
             ),
         )
         app.include_router(login_router)
-        app.add_middleware(SessionMiddleware, secret_key="some-random-string")
+        base_url = conf.get("api", "base_url", fallback="")
+        https_only = urlsplit(base_url).scheme == "https" or bool(
+            conf.get("api", "ssl_cert", fallback="")
+        )
+        app.add_middleware(
+            SessionMiddleware,
+            secret_key=conf.get("api", "secret_key"),
+            https_only=https_only,
+        )
 
         return app
 
